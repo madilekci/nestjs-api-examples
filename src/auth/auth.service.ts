@@ -1,7 +1,8 @@
 import { PrismaService } from './../prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 @Injectable()
 export class AuthService {
@@ -13,24 +14,31 @@ export class AuthService {
         // hash password
         const hash = await argon.hash(dto.password);
 
-        // save the user into db
-        const user = await this.prisma.user.create({
-            data: {
-                email: dto.email,
-                hash: hash
-            },
-            // select: {
-            //     id: true,
-            //     email: true,
-            //     created_at: true,
-            // }
-        });
+        try {
+            // save the user into db
+            const user = await this.prisma.user.create({
+                data: {
+                    email: dto.email,
+                    hash: hash
+                },
+                // select: {
+                //     id: true,
+                //     email: true,
+                //     created_at: true,
+                // }
+            });
 
-        delete user.hash;
+            delete user.hash;
 
-        // return the saved user
+            // return the saved user
 
-        return user;
+            return user;
+        } catch (error) {
+            // catch any duplication errors
+            if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
+                throw new ForbiddenException('Credentials are used already by another user.');
+            }
+        }
     }
 
     signIn() {
