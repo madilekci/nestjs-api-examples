@@ -34,10 +34,12 @@ export class AuthService {
 
             return user;
         } catch (error) {
+            console.log(error instanceof PrismaClientKnownRequestError );
             // catch any duplication errors
-            if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
-                throw new ForbiddenException('Credentials are used already by another user.');
+            if (error.code === 'P2002') {
+                throw new ForbiddenException('Credentials are already in use');
             }
+            throw error;
         }
     }
 
