@@ -10,8 +10,8 @@ export class BookmarkService {
         const bookmark = await this.prisma.bookmark.create({
             data: {
                 userId: userId,
-                ...dto
-            }
+                ...dto,
+            },
         });
         return bookmark;
     }
@@ -19,27 +19,31 @@ export class BookmarkService {
     getBookmarks(userId: number) {
         return this.prisma.bookmark.findMany({
             where: {
-                userId
-            }
-        })
+                userId,
+            },
+        });
     }
 
     getBookmarkById(userId: number, bookmarkId: number) {
         return this.prisma.bookmark.findFirst({
             where: {
                 userId,
-                id: bookmarkId
-            }
-        })
+                id: bookmarkId,
+            },
+        });
     }
 
-    async editBookmark(userId: number, bookmarkId: number, dto: EditBookmarkDto) {
+    async editBookmark(
+        userId: number,
+        bookmarkId: number,
+        dto: EditBookmarkDto,
+    ) {
         // get the bookmark by id
         const bookmark = await this.prisma.bookmark.findFirst({
             where: {
-                id: bookmarkId
-            }
-        })
+                id: bookmarkId,
+            },
+        });
 
         // check if user owns the bookmark
         if (!bookmark || bookmark.userId !== userId) {
@@ -48,11 +52,11 @@ export class BookmarkService {
 
         return this.prisma.bookmark.update({
             where: {
-                id: bookmark.id
+                id: bookmark.id,
             },
             data: {
-                ...dto
-            }
+                ...dto,
+            },
         });
     }
 
@@ -60,9 +64,9 @@ export class BookmarkService {
         // get the bookmark by id
         const bookmark = await this.prisma.bookmark.findFirst({
             where: {
-                id: bookmarkId
-            }
-        })
+                id: bookmarkId,
+            },
+        });
 
         // check if user owns the bookmark
         if (!bookmark || bookmark.userId !== userId) {
@@ -71,8 +75,8 @@ export class BookmarkService {
 
         return this.prisma.bookmark.delete({
             where: {
-                id: bookmark.id
-            }
+                id: bookmark.id,
+            },
         });
     }
 }
