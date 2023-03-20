@@ -1,24 +1,51 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import { PrismaService } from './../src/prisma/prisma.service';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './../src/app.module';
+import { Test } from '@nestjs/testing';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication;
+describe('app e2e', () => {
+    let app: INestApplication;
+    let prisma: PrismaService;
+    beforeAll(async () => {
+        const moduleRef = await Test.createTestingModule({
+            imports: [AppModule],
+        }).compile();
+        app = moduleRef.createNestApplication();
+        app.useGlobalPipes(
+            new ValidationPipe({
+                whitelist: true,
+            }),
+        );
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+        await app.init();
+        prisma = app.get(PrismaService);
+        await prisma.cleanUp();
+    });
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
+    describe('Auth', () => {
+        describe('Sign up', () => {
+            it.todo('should sign up');
+        });
+        describe('Sign in', () => {
+          it.todo('should sign in');
+        });
+    });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
+    describe('User', () => {
+        describe('Get Me', () => {});
+        describe('Edit user', () => {});
+    });
+
+    describe('Bookmarks', () => {
+        describe('Create bookmark', () => {});
+        describe('Get bookmarks', () => {});
+        describe('Get one bookmark', () => {});
+
+        describe('Update bookmark', () => {});
+        describe('Delete bookmark', () => {});
+    });
+
+    afterAll(() => {
+        app.close();
+    });
 });
