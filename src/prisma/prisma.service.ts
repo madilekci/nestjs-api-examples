@@ -14,4 +14,12 @@ export class PrismaService extends PrismaClient {
         });
     }
 
+    // tear down logic for end to end tests
+    cleanUp() {
+        return this.$transaction([
+            this.bookmark.deleteMany(),
+            this.user.deleteMany()
+        ]);
+    }
+
 }
